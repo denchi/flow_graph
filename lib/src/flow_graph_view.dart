@@ -17,7 +17,9 @@ class FlowGraphView<T> extends StatefulWidget {
       this.enabled = true,
       required this.builder,
       this.onSelectChanged,
-      this.onEdgeColor})
+      this.onEdgeColor,
+      this.focusColor,
+      this.hoverColor})
       : super(key: key);
 
   final GraphNode<T> root;
@@ -26,6 +28,8 @@ class FlowGraphView<T> extends StatefulWidget {
   final bool enabled;
   final NodeWidgetBuilder<T> builder;
   final OnSelectChanged<T>? onSelectChanged;
+  final Color? focusColor;
+  final Color? hoverColor;
 
   ///Custom edge color
   final OnEdgeColor<T>? onEdgeColor;
@@ -71,6 +75,8 @@ class _FlowGraphViewState<T> extends State<FlowGraphView<T>> {
             ? _NodeWidget(
                 child: widget.builder(context, root),
                 node: root,
+                focusColor: widget.focusColor,
+                hoverColor: widget.hoverColor,
                 onFocus: () {
                   widget.onSelectChanged?.call(root);
                 },
@@ -90,6 +96,8 @@ class _FlowGraphViewState<T> extends State<FlowGraphView<T>> {
                     ? _NodeWidget(
                         child: widget.builder(context, node as GraphNode<T>),
                         node: node,
+                        focusColor: widget.focusColor,
+                        hoverColor: widget.hoverColor,
                         onFocus: () {
                           widget.onSelectChanged?.call(node);
                         },
@@ -110,12 +118,16 @@ class _NodeWidget extends StatefulWidget {
     Key? key,
     required this.child,
     required this.node,
+    this.focusColor,
+    this.hoverColor,
     this.onFocus,
   }) : super(key: key);
 
   final Widget child;
   final GraphNode node;
   final VoidCallback? onFocus;
+  final Color? focusColor;
+  final Color? hoverColor;
 
   @override
   _NodeWidgetState createState() => _NodeWidgetState();
@@ -142,7 +154,8 @@ class _NodeWidgetState extends State<_NodeWidget> {
 
   @override
   Widget build(BuildContext context) {
-    var focusColor = Theme.of(context).colorScheme.secondaryVariant;
+    var focusColor = widget.focusColor ?? Theme.of(context).colorScheme.secondaryVariant;
+    var hoverColor = widget.hoverColor ?? Theme.of(context).colorScheme.secondaryVariant;
 
     return GestureDetector(
       onTap: () {
@@ -168,7 +181,7 @@ class _NodeWidgetState extends State<_NodeWidget> {
                 color: (_currentFocus)
                     ? focusColor
                     : _hovered
-                        ? focusColor.withAlpha(180)
+                        ? hoverColor
                         : Colors.transparent,
                 width: 2),
             borderRadius: BorderRadius.circular(3),
